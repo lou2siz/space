@@ -58,13 +58,11 @@ function App() {
               </button>
             </div>
             <div className="iframe-container">
-              <iframe
+              <webview
                 src={url}
-                title={`website-${index}`}
-                className="iframe"
-                frameBorder="0"
-                allowFullScreen
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                style={{ width: '100%', height: '100%' }}
+                allowpopups="true"
+                webpreferences="contextIsolation=false"
               />
             </div>
           </div>
