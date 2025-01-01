@@ -1,0 +1,33 @@
+.command-bar {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  z-index: 1000;
+}
+
+.command-bar form {
+  display: flex;
+  gap: 10px;
+}
+
+.command-bar input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #4CAF50;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.command-bar button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.command-bar button:hover {
+  background-color: #45a049;
+} 

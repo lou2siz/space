@@ -50,6 +50,13 @@ button:hover {
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.iframe-wrapper.minimized {
+  height: 50px !important;
+  overflow: hidden;
 }
 
 .iframe-header {
@@ -87,6 +94,7 @@ button:hover {
   height: 400px;
   position: relative;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .iframe {
@@ -96,4 +104,37 @@ button:hover {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.iframe-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.control-button {
+  padding: 5px 10px;
+  margin-left: 5px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.minimize-button {
+  background-color: #ffa500;
+}
+
+.minimize-button:hover {
+  background-color: #ff8c00;
+}
+
+.size-selector {
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: white;
+  font-size: 12px;
+}
+
+.hidden {
+  display: none;
 }
