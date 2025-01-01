@@ -8,10 +8,18 @@ function App() {
   const [minimizedSites, setMinimizedSites] = useState({});
   const [customSizes, setCustomSizes] = useState({});
 
+  const isElectron = window.electron !== undefined;
+
   const formatUrl = (url) => {
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      return `https://${url}`;
+      url = `https://${url}`;
     }
+    
+    // Only use proxy if we're not in Electron
+    if (!isElectron) {
+      return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    }
+    
     return url;
   };
 
@@ -119,15 +127,31 @@ function App() {
                 </button>
               </div>
             </div>
-            <div className={`iframe-container ${minimizedSites[index] ? 'hidden' : ''}`}>
+            {isElectron ? (
+              // Use webview for Electron
               <webview
                 src={url}
                 style={{ width: '100%', height: '100%' }}
-                allowpopups="false"
-                webpreferences="contextIsolation=true"
-                partition="persist:main"
+                allowpopups="true"
               />
-            </div>
+            ) : (
+              // Use iframe for web browser
+              <iframe
+                src={formatUrl(url)}
+                title={`frame-${index}`}
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                onError={(e) => {
+                  e.target.srcdoc = `
+                    <div style="padding: 20px; text-align: center;">
+                      <h3>Unable to load ${url}</h3>
+                      <p>This website may not allow embedding in iframes.</p>
+                      <p>For best experience, please use our desktop app.</p>
+                      <a href="${url}" target="_blank">Open in new tab</a>
+                    </div>
+                  `;
+                }}
+              />
+            )}
           </div>
         ))}
       </div>
