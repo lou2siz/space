@@ -10,18 +10,19 @@ function App() {
 
   const isElectron = window.electron !== undefined;
 
-  const getProxyUrl = (url) => {
-    // Use Vercel's API route for proxying
-    return `/api/proxy?url=${encodeURIComponent(url)}`;
-  };
-
   const formatUrl = (url) => {
+    // First, ensure the URL has a protocol
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = `https://${url}`;
     }
     
+    // Only use proxy in web mode, not in Electron
     if (!isElectron) {
-      return getProxyUrl(url);
+      // Use absolute URL for production, relative for development
+      const baseUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://your-vercel-domain.vercel.app'  // Replace with your actual Vercel domain
+        : '';
+      return `${baseUrl}/api/proxy?url=${encodeURIComponent(url)}`;
     }
     
     return url;
@@ -160,18 +161,8 @@ function App() {
                 src={formatUrl(url)}
                 title={`frame-${index}`}
                 style={{ width: '100%', height: '100%', border: 'none' }}
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
-                loading="lazy"
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                 referrerPolicy="no-referrer"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                onError={(e) => {
-                  // If the first proxy fails, try the next one
-                  const currentUrl = e.target.src;
-                  const currentProxyIndex = proxyServices.findIndex(p => currentUrl.includes(p));
-                  if (currentProxyIndex < proxyServices.length - 1) {
-                    e.target.src = proxyServices[currentProxyIndex + 1];
-                  }
-                }}
               />
             )}
           </div>
