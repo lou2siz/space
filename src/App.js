@@ -10,14 +10,25 @@ function App() {
 
   const isElectron = window.electron !== undefined;
 
+  const getProxyUrl = (url) => {
+    // Try multiple proxy services in case one fails
+    const proxyServices = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      `https://cors-anywhere.herokuapp.com/${url}`,
+      `https://api.codetabs.com/v1/proxy?quest=${url}`,
+      `https://proxy.cors.sh/${url}`
+    ];
+    
+    return proxyServices[0]; // Start with first proxy, can implement fallback logic
+  };
+
   const formatUrl = (url) => {
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = `https://${url}`;
     }
     
-    // Only use proxy if we're not in Electron
     if (!isElectron) {
-      return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+      return getProxyUrl(url);
     }
     
     return url;
@@ -84,6 +95,24 @@ function App() {
     <div className="App">
       <CommandBar onCommand={handleCommand} />
       <h1>Multi Web Browser</h1>
+      {!isElectron && (
+        <div style={{
+          background: '#fff3cd',
+          color: '#856404',
+          padding: '12px',
+          borderRadius: '4px',
+          marginBottom: '20px',
+          textAlign: 'center'
+        }}>
+          ⚠️ For the best experience with unrestricted website access, please use our{' '}
+          <a href="https://github.com/yourusername/your-repo/releases" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             style={{ color: '#856404', fontWeight: 'bold' }}>
+            desktop app
+          </a>
+        </div>
+      )}
       <div className="input-section">
         <input
           type="text"
@@ -128,27 +157,27 @@ function App() {
               </div>
             </div>
             {isElectron ? (
-              // Use webview for Electron
               <webview
                 src={url}
                 style={{ width: '100%', height: '100%' }}
                 allowpopups="true"
               />
             ) : (
-              // Use iframe for web browser
               <iframe
                 src={formatUrl(url)}
                 title={`frame-${index}`}
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                style={{ width: '100%', height: '100%', border: 'none' }}
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 onError={(e) => {
-                  e.target.srcdoc = `
-                    <div style="padding: 20px; text-align: center;">
-                      <h3>Unable to load ${url}</h3>
-                      <p>This website may not allow embedding in iframes.</p>
-                      <p>For best experience, please use our desktop app.</p>
-                      <a href="${url}" target="_blank">Open in new tab</a>
-                    </div>
-                  `;
+                  // If the first proxy fails, try the next one
+                  const currentUrl = e.target.src;
+                  const currentProxyIndex = proxyServices.findIndex(p => currentUrl.includes(p));
+                  if (currentProxyIndex < proxyServices.length - 1) {
+                    e.target.src = proxyServices[currentProxyIndex + 1];
+                  }
                 }}
               />
             )}
