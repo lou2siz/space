@@ -11,15 +11,8 @@ function App() {
   const isElectron = window.electron !== undefined;
 
   const getProxyUrl = (url) => {
-    // Try multiple proxy services in case one fails
-    const proxyServices = [
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-      `https://cors-anywhere.herokuapp.com/${url}`,
-      `https://api.codetabs.com/v1/proxy?quest=${url}`,
-      `https://proxy.cors.sh/${url}`
-    ];
-    
-    return proxyServices[0]; // Start with first proxy, can implement fallback logic
+    // Use Vercel's API route for proxying
+    return `/api/proxy?url=${encodeURIComponent(url)}`;
   };
 
   const formatUrl = (url) => {
